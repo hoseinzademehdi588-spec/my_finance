@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#102a43">
+<link rel="manifest" href="manifest.webmanifest">
+<title>مدیریت مالی من</title>
+<style>
+:root{--navy:#102a43;--navy2:#183f5b;--teal:#16b8a6;--bg:#f3f7fa;--card:#fff;--ink:#193247;--muted:#718096;--line:#e3ebf0;--red:#d94b58;--green:#159b76}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Tahoma,Arial,sans-serif;color:var(--ink);padding-bottom:30px}
+header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:white;padding:24px 18px 28px;border-radius:0 0 24px 24px}
+header h1{font-size:21px;margin:0 0 7px}header p{margin:0;color:#d4e4ed;font-size:12px}
+main{max-width:760px;margin:auto;padding:14px}
+.tabs{display:flex;gap:8px;overflow:auto;margin:4px 0 14px}
+.tab{border:1px solid var(--line);background:white;border-radius:12px;padding:10px 14px;white-space:nowrap;color:var(--ink);font-size:13px}
+.tab.active{background:var(--navy);color:white;border-color:var(--navy)}
+.panel{display:none}.panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:15px;margin-bottom:12px;box-shadow:0 4px 16px #173b5508}
+h2{font-size:16px;margin:0 0 13px}.muted{color:var(--muted);font-size:12px}
+label{display:block;font-size:12px;color:#526879;margin:10px 0 6px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #d9e3e9;border-radius:11px;background:#fff;color:var(--ink);font:14px Tahoma,Arial}
+textarea{min-height:70px;resize:vertical}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{border:0;border-radius:11px;padding:12px 15px;background:var(--teal);color:#062f35;font: bold 13px Tahoma;cursor:pointer}
+button.secondary{background:#eaf2f6;color:var(--navy)}button.dark{background:var(--navy);color:white}button.danger{background:#fff0f1;color:var(--red)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.voice{width:100%;background:#e5faf6;color:#087e70;border:1px solid #bceee5;margin:8px 0}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.kpi{background:#f7fafc;border-radius:13px;padding:12px}.kpi small{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}.kpi strong{font-size:18px}
+.item{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border:0}.amount{font-weight:bold;white-space:nowrap}.expense{color:var(--red)}.income{color:var(--green)}
+.pill{font-size:10px;background:#edf4f7;border-radius:20px;padding:4px 7px;margin-inline-start:5px}
+.hidden{display:none!important}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:12px}
+@media(max-width:420px){.grid{grid-template-columns:1fr 1fr}.kpi strong{font-size:16px}}
+</style>
+</head>
+<body>
+<header><h1>مدیریت مالی من</h1><p>دفتر دخل‌وخرج شخصی و شرکتی · ذخیره روی همین دستگاه</p></header>
+<main>
+<div class="tabs">
+<button class="tab active" data-tab="add">ثبت تراکنش</button>
+<button class="tab" data-tab="list">تراکنش‌ها</button>
+<button class="tab" data-tab="reports">گزارش‌ها</button>
+<button class="tab" data-tab="backup">پشتیبان‌گیری</button>
+</div>
+
+<section id="add" class="panel active">
+<div class="card">
+<h2>ثبت سریع با صدا</h2>
+<p class="muted">مثال: «امروز ۵۰۰ لیر هزینه بنزین برای شرکت» یا «۲۰۰ دلار درآمد شخصی»</p>
+<button class="voice" id="voiceBtn">🎙 شروع گفتار فارسی</button>
+<div id="voiceStatus" class="muted" aria-live="polite"></div>
+<label>متن تشخیص‌داده‌شده / توضیح</label>
+<textarea id="voiceText" placeholder="می‌توانید جمله را تایپ کنید یا با صدا بگویید..."></textarea>
+</div>
+<div class="card">
+<h2>جزئیات تراکنش</h2>
+<div class="grid">
+<div><label>نوع</label><select id="type"><option value="expense">هزینه</option><option value="income">درآمد</option></select></div>
+<div><label>بخش</label><select id="scope"><option value="personal">شخصی</option><option value="business">شرکتی</option></select></div>
+<div><label>مبلغ</label><input id="amount" type="number" min="0" step="0.01" placeholder="مثلاً 500"></div>
+<div><label>ارز</label><select id="currency"><option>TRY</option><option>USD</option><option>EUR</option></select></div>
+<div><label>دسته‌بندی</label><select id="category"><option>عمومی</option><option>فروش</option><option>حقوق</option><option>اجاره</option><option>قبوض</option><option>حمل‌ونقل</option><option>بنزین</option><option>خوراک</option><option>خرید</option><option>تبلیغات</option><option>ترجمه</option><option>دانشگاه</option><option>اقامت</option><option>سایر</option></select></div>
+<div><label>حساب</label><select id="account"><option>نقدی</option><option>بانک</option><option>کارت</option><option>سایر</option></select></div>
+</div>
+<label>تاریخ</label><input id="date" type="date">
+<label>یادداشت</label><input id="note" placeholder="توضیح کوتاه">
+<div class="actions"><button id="saveBtn" class="dark">ذخیره تراکنش</button><button id="clearBtn" class="secondary">پاک‌کردن فرم</button></div>
+</div>
+</section>
+
+<section id="list" class="panel">
+<div class="card"><h2>تراکنش‌ها</h2>
+<div class="grid">
+<div><label>فیلتر بخش</label><select id="filterScope"><option value="all">همه</option><option value="personal">شخصی</option><option value="business">شرکتی</option></select></div>
+<div><label>فیلتر نوع</label><select id="filterType"><option value="all">همه</option><option value="income">درآمد</option><option value="expense">هزینه</option></select></div>
+</div>
+<div id="transactions"></div></div>
+</section>
+
+<section id="reports" class="panel">
+<div class="card"><h2>خلاصه مالی</h2>
+<div class="grid">
+<div><label>بازه</label><select id="period"><option value="month">ماه جاری</option><option value="year">سال جاری</option><option value="all">همه زمان‌ها</option></select></div>
+<div><label>بخش</label><select id="reportScope"><option value="all">شخصی و شرکتی</option><option value="personal">شخصی</option><option value="business">شرکتی</option></select></div>
+</div>
+<div id="reportOutput"></div>
+<p class="muted">ارزها جداگانه جمع می‌شوند؛ تبدیل ارز بدون نرخ دستی انجام نمی‌شود.</p>
+</div>
+</section>
+
+<section id="backup" class="panel">
+<div class="card"><h2>پشتیبان‌گیری و امنیت</h2>
+<p class="muted">اطلاعات در حافظه مرورگر همین دستگاه ذخیره می‌شود. برای جلوگیری از ازدست‌رفتن اطلاعات، هر چند وقت یک‌بار فایل پشتیبان بگیرید.</p>
+<div class="actions"><button id="exportBtn" class="dark">دانلود فایل پشتیبان</button><button id="importBtn" class="secondary">بازیابی فایل پشتیبان</button><input id="importFile" type="file" accept="application/json" class="hidden"></div>
+<p class="muted">با پاک‌کردن داده‌های مرورگر ممکن است اطلاعات حذف شود. فایل پشتیبان را در جای امن نگه دارید.</p>
+</div>
+<div class="card"><h2>درباره برنامه</h2><p class="muted">نسخه اولیه شخصی، بدون اشتراک و بدون حساب کاربری. برای نصب مانند اپلیکیشن، باید روی یک نشانی HTTPS میزبانی شود و سپس از منوی مرورگر «افزودن به صفحه اصلی» را بزنید.</p></div>
+</section>
+</main>
+<footer>نسخه اولیه · مدیریت مالی من</footer>
+<script>
+const KEY='my_finance_transactions_v1';
+let data=[]; try{data=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){data=[]}
+const $=id=>document.getElementById(id);
+const today=new Date(); $('date').value=today.toISOString().slice(0,10);
+const faNum=s=>String(s).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+const fmt=n=>new Intl.NumberFormat('fa-IR',{maximumFractionDigits:2}).format(n);
+function persist(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab,.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active');render()}));
+function parseVoice(t){
+ let s=faNum(t).toLowerCase();
+ let m=s.match(/(\d+(?:[.,]\d+)?)/); if(m)$('amount').value=m[1].replace(',','.');
+ if(/دلار|usd/.test(s))$('currency').value='USD'; else if(/یورو|eur/.test(s))$('currency').value='EUR'; else if(/لیر|تومان|try/.test(s))$('currency').value='TRY';
+ if(/درآمد|دریافت|فروش/.test(s))$('type').value='income'; if(/هزینه|خرج|پرداخت/.test(s))$('type').value='expense';
+ if(/شرکت|شرکتی|دفتر/.test(s))$('scope').value='business'; if(/شخصی/.test(s))$('scope').value='personal';
+ const cats={'بنزین':'بنزین','اجاره':'اجاره','حقوق':'حقوق','تبلیغ':'تبلیغات','ترجمه':'ترجمه','دانشگاه':'دانشگاه','اقامت':'اقامت','خوراک':'خوراک','قبض':'قبوض','حمل':'حمل‌ونقل'};
+ for(const [k,v] of Object.entries(cats))if(s.includes(k))$('category').value=v;
+ $('note').value=t;
+}
+$('voiceText').addEventListener('change',e=>parseVoice(e.target.value));
+$('voiceBtn').addEventListener('click',()=>{
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){$('voiceStatus').textContent='تشخیص گفتار در این مرورگر پشتیبانی نمی‌شود؛ متن را تایپ کنید.';return}
+ try{const r=new SR();r.lang='fa-IR';r.interimResults=false;r.maxAlternatives=1;
+ $('voiceStatus').textContent='در حال گوش‌دادن...';
+ r.onresult=e=>{const t=e.results[0][0].transcript;$('voiceText').value=t;parseVoice(t);$('voiceStatus').textContent='متن دریافت شد؛ لطفاً مبلغ و جزئیات را بررسی کنید.'};
+ r.onerror=e=>$('voiceStatus').textContent='تشخیص صدا انجام نشد ('+e.error+'). متن را تایپ کنید.';
+ r.onend=()=>{};r.start()}catch(e){$('voiceStatus').textContent='امکان شروع میکروفون نیست؛ مجوز میکروفون را بررسی کنید.'}
+});
+$('saveBtn').onclick=()=>{
+ const amount=Number($('amount').value); if(!amount||amount<=0){alert('مبلغ معتبر وارد کنید.');return}
+ data.unshift({id:Date.now(),type:$('type').value,scope:$('scope').value,amount,currency:$('currency').value,category:$('category').value,account:$('account').value,date:$('date').value,note:$('note').value});
+ persist(); $('amount').value='';$('note').value='';$('voiceText').value='';$('voiceStatus').textContent='تراکنش ذخیره شد.';
+};
+$('clearBtn').onclick=()=>{['amount','note','voiceText'].forEach(id=>$(id).value='');$('voiceStatus').textContent=''};
+$('filterScope').onchange=render;$('filterType').onchange=render;$('period').onchange=render;$('reportScope').onchange=render;
+function filtered(){return data.filter(x=>($('filterScope').value==='all'||x.scope===$('filterScope').value)&&($('filterType').value==='all'||x.type===$('filterType').value))}
+function renderList(){
+ const root=$('transactions');const arr=filtered();root.innerHTML='';
+ if(!arr.length){root.innerHTML='<p class="muted">هنوز تراکنشی ثبت نشده است.</p>';return}
+ arr.forEach(x=>{const d=document.createElement('div');d.className='item';const left=document.createElement('div');left.innerHTML=`<div><b>${x.category}</b> <span class="pill">${x.scope==='business'?'شرکتی':'شخصی'}</span></div><div class="muted">${x.date} · ${x.account} · ${x.note||''}</div>`;const right=document.createElement('div');right.className='amount '+x.type;right.textContent=(x.type==='income'?'+':'−')+fmt(x.amount)+' '+x.currency;const del=document.createElement('button');del.className='danger';del.textContent='حذف';del.style.marginTop='5px';del.onclick=()=>{if(confirm('این تراکنش حذف شود؟')){data=data.filter(y=>y.id!==x.id);persist()}};const wrap=document.createElement('div');wrap.append(right,del);d.append(left,wrap);root.append(d)});
+}
+function renderReport(){
+ const p=$('period').value,sc=$('reportScope').value,now=new Date();
+ let arr=data.filter(x=>(sc==='all'||x.scope===sc));
+ arr=arr.filter(x=>{const d=new Date(x.date+'T12:00:00');return p==='all'||(p==='month'?d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth():d.getFullYear()===now.getFullYear())});
+ const currencies=['TRY','USD','EUR'];let out='<div class="kpis">';
+ currencies.forEach(c=>{const inc=arr.filter(x=>x.currency===c&&x.type==='income').reduce((a,x)=>a+x.amount,0);const exp=arr.filter(x=>x.currency===c&&x.type==='expense').reduce((a,x)=>a+x.amount,0);out+=`<div class="kpi"><small>مانده ${c}</small><strong>${fmt(inc-exp)}</strong><div class="muted">درآمد ${fmt(inc)} · هزینه ${fmt(exp)}</div></div>`});
+ out+='</div>';$('reportOutput').innerHTML=out;
+}
+function render(){renderList();renderReport()}
+$('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({app:'My Finance',version:1,transactions:data},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='my-finance-backup.json';a.click();URL.revokeObjectURL(a.href)};
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());const arr=Array.isArray(j)?j:j.transactions;if(!Array.isArray(arr))throw 0;if(confirm('اطلاعات فعلی با فایل جایگزین شود؟')){data=arr;persist();alert('بازیابی انجام شد.')}}catch(err){alert('فایل پشتیبان معتبر نیست.')}e.target.value=''};
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+render();
+</script>
+</body></html>
